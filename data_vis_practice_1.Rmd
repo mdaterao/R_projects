@@ -1,0 +1,122 @@
+---
+title: Data Visualization practice part 1
+author: "Monal Daterao"
+date: "2024-10-07"
+output: pdf_document
+---
+
+In this markdown file, I showcase my ability to create data visualizations using ggplot2 with various data sets. 
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(ggplot2)
+library(r02pro)
+```
+
+## Section 5.3.5: Q2
+```{r}
+
+gm2004 %>% 
+  ggplot() +
+  geom_point(mapping = aes(x = BMI,
+                           y = cholesterol,
+                           size = BMI),
+             color = "purple")
+```
+
+## Section 5.3.5: Q3
+```{r}
+
+gm2004_HDI_cleaned <- remove_missing(gm2004, vars = "HDI_category")
+gm2004_HDI_cleaned %>%
+  ggplot() +
+  geom_point(mapping = aes(x = sugar,
+                           y = cholesterol,
+                           color = HDI_category,
+                           size = population)) +
+   scale_color_manual(values = c("high" = "red", 
+                                "very high" = "red", 
+                                "low" = "purple", 
+                                "medium" = "purple"))
+  
+```
++ This graph shows that countries high and very high HDI indexes generally consume more sugar, have higher cholesterol and smaller population sizes compared to countries with low and medium HDI indexes. 
+
+## Section 5.6.4: Q1
+```{r}
+sahp %>% 
+  ggplot() +
+  geom_smooth(mapping = aes(x = lot_area,
+                            y = sale_price))
+```
+
+## Section 5.6.4: Q2
+```{r}
+sahp %>% 
+  ggplot() +
+  geom_smooth(mapping = aes(x = lot_area,
+                            y = sale_price,
+                            color = kit_qual))
+```
+
+## Section 5.6.4: Q3
+```{r}
+sahp %>% 
+  ggplot() +
+  geom_smooth(mapping = aes(x = lot_area,
+                            y = sale_price,
+                            linetype = bedroom > 2),
+              se = FALSE)
+```
+
+## Section 5.7.3: Q1
+```{r}
+sahp %>% 
+  ggplot() +
+  geom_point(mapping = aes(x = lot_area,
+                           y = sale_price,
+                           color = heat_qual == "Excellent")) +
+  geom_smooth(mapping = aes(x = lot_area,
+                           y = sale_price,
+                           linetype = house_style == "2Story"))
+```
+
+## Section 5.7.3: Q2
+```{r}
+sahp %>% 
+  ggplot() +
+  geom_point(mapping = aes(x = liv_area,
+                           y = sale_price)) +
+  geom_smooth(mapping = aes(x = liv_area,
+                           y = sale_price))
+```
+
+## Section 5.7.3: Q3
+```{r}
+sahp %>% 
+  ggplot() +
+  geom_point(mapping = aes(x = liv_area,
+                           y = sale_price,
+                           color = bedroom > 3),
+             size = 2) +
+  geom_smooth(mapping = aes(x = liv_area,
+                           y = sale_price,
+                           color = bedroom > 3))
+  
+```
+
+## Section 5.7.3: Q4
+
+```{r}
+sahp %>% 
+  ggplot(mapping = aes(x = liv_area, 
+                     y = sale_price)) +
+  geom_point(color = "pink") + 
+  geom_smooth(color = "green")
+  
+```
+

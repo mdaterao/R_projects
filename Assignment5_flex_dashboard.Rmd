@@ -1,0 +1,59 @@
+---
+title: "NMES Data Visualization"
+output: flexdashboard::flex_dashboard
+runtime: shiny
+source_code: embed
+---
+
+In this project, I created a flex dashboard using shiny, allowing the user to graphically explore the relationship between medical expenditures and other variables in the nmes dataset. 
+
+```{r global, include=FALSE}
+# load data in 'global' chunk so it can be shared by all users of the dashboard
+load("nmes2018.rda")
+library(ggplot2)
+library(shiny)
+
+```
+
+Column {.sidebar}
+-----------------------------------------------------------------------
+
+
+```{r}
+selectInput("x_variable", "X Variable:",
+                  c("Sex (female)" = "female",
+                    "Eversmokers (eversmk)" = "eversmk",
+                    "Has an MSCD (mscd)" = "mscd",
+                    "Poverty status (poor)" = "poor"))
+
+checkboxInput("log10_exp", "log10 transform the medical expenditures", TRUE)
+selectInput("strat_variable", "Stratify by",
+            c("Education level (educate)" = "educate",
+              "Seatbelt use status (beltuse)" = "beltuse",
+              "Age category (ageCat)" = "ageCat"))
+
+```
+
+Column
+-----------------------------------------------------------------------
+
+### NMES Data visualization
+
+```{r}
+
+# Reactive expression to calculate y variable
+y_var <- reactive({
+  if (input$log10_exp) log10(nmes.data$totalexp) else nmes.data$totalexp
+})
+# Render the plot
+
+renderPlot({
+  ggplot(data = nmes.data) +
+    geom_boxplot(mapping = aes_string(x = input$x_variable, y = y_var(), color = input$strat_variable)) +
+    labs(title = "Differences in medical expenditures according to your selected variables",
+         x = input$x_variable,
+         y = if (input$log10_exp) "Log10 Medical Expenditures" else "Medical Expenditures")
+})
+
+```
+

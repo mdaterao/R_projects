@@ -1,0 +1,137 @@
+---
+title: "Assignment 2: Data transformation"
+author: Monal Daterao
+date: October 5th, 2023
+output: html_document
+---
+
+This is a homework assignment I completed that showcases some of my data transformation
+skills in R. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r}
+library(tidyverse)
+load("nmes2018.rda")
+```
+
+### Question 1
+
+* How many people in the dataset have an MSCD?
+
+Answer:
+```{r}
+by_mscd <- group_by(nmes.data, mscd)
+summarize(by_mscd, n = n())
+
+```
+
+* What was the highest medical expenditure in this data?
+
+Answer:
+```{r}
+summarize(nmes.data, max_exp = max(totalexp, na.rm=TRUE))
+
+```
+
+* What was the highest medical expenditure for someone without an MSCD?
+
+Answer:
+```{r}
+by_mscd <- group_by(nmes.data, mscd)
+summarize(by_mscd, max_exp = max(totalexp, na.rm=TRUE))
+
+```
+
+* How old is the youngest person with an MSCD?
+
+Answer:
+```{r}
+by_mscd <- group_by(nmes.data, mscd)
+summarize(by_mscd, youngest = min(age, na.rm=TRUE))
+
+```
+
+* How old is the oldest person without an MSCD?
+
+Answer:
+```{r}
+by_mscd <- group_by(nmes.data, mscd)
+summarize(by_mscd, oldest = max(age, na.rm=TRUE))
+
+```
+
+
+### Question 2
+Write R code to reproduce tables that compare people with and without an MSCD for the variables age, bmi, educate, poor, and female.
+
+```{r}
+by_mscd <- group_by(nmes.data, mscd)
+
+summarize(by_mscd,
+          n = n(),
+          mean_age = mean(age, na.rm=TRUE),
+          sd_age = sd(age, na.rm=TRUE))
+
+summarize(by_mscd,
+          n = sum(!is.na(bmi)),
+          mean_bmi = mean(bmi, na.rm=TRUE),
+          sd_bmi = sd(bmi, na.rm=TRUE))
+
+nmes.data %>%
+  group_by(mscd, educate) %>%
+  summarize(n = n()) %>%
+  mutate(percent = n/sum(n) * 100)
+
+nmes.data %>%
+  group_by(mscd, poor) %>%
+  summarize(n = n()) %>%
+  mutate(percent = n/sum(n) * 100)
+
+nmes.data %>%
+  group_by(mscd, female) %>%
+  summarize(n = n()) %>%
+  mutate(percent = n/sum(n) * 100)
+```
+
+### Question 3
+
+Create boxplots that show the relationship between medical expenditure and MSCD status by working the log10-transformed expenditures rather than medical expenditures on the dollar scale.
+
+Plot 1:
+```{r}
+nmes.data %>%
+  mutate(log10 = log10(totalexp)) %>%
+  ggplot() +
+  geom_boxplot(mapping = aes(x = mscd, y = log10, fill = mscd), varwidth = TRUE) +
+  facet_grid(poor ~ ageCat) +
+  labs( title = "Medical expenditures by major smoking−caused disease (MSCD)",
+    subtitle = "Stratified by age group and poverty status",
+    y = "Total medical expenditures ($)",
+    x = "Major smoking-caused disease (MSCD) status", 
+    fill = "MSCD status"
+    )+
+  theme(legend.position = "bottom")
+
+  
+
+```
+
+Plot 2:
+```{r}
+nmes.data %>%
+  mutate(log10 = log10(totalexp),
+         agecatpoor = paste(ageCat, poor, sep = " ")) %>%
+  ggplot() +
+  geom_boxplot(mapping = aes(x = agecatpoor, y = log10, fill = mscd), varwidth = TRUE) +
+  labs( title = "Medical expenditures by major smoking−caused disease (MSCD)",
+    subtitle = "Stratified by age group and poverty status",
+    y = "Total medical expenditures ($)",
+    x = "Major smoking-caused disease (MSCD) status", 
+    fill = "MSCD status"
+    )+
+  theme(legend.position = "bottom")
+
+```

@@ -1,0 +1,156 @@
+---
+title: "Assignment 3: Data wrangling"
+author: Monal Daterao
+date: October 29, 2023
+output: html_document
+---
+
+This is an homework assignment I completed for a course that showcases my data
+wrangling skills in R. 
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+(1) Read in the unprocessed NMES data (`nmesUNPROC.csv`) using the `read_csv()` function. Store this data in an object called `nmesRAW`.
+
+```{r}
+#Put your code to read in the data here
+nmesRAW <- read_csv("nmesUNPROC.csv")
+nmesRAW
+
+```
+
+(2) Add an `mscd` factor variable to the dataset that is an indicator of whether the individual has a major smoking caused disease (1 = Yes, 0 = No).  You can create this variable from the `lc5` and `chd5` variables.
+
+```{r}
+nmesRAW <- nmesRAW %>%
+  mutate(mscd = (lc5 == 1) | (chd5 == 1) )
+nmesRAW %>%
+  count(mscd)
+
+nmesRAW <- nmesRAW %>%
+  mutate(mscd_recode = factor(mscd)) %>%
+  mutate(mscd_recode = fct_recode(mscd_recode,
+    "Yes" = "TRUE",
+    "NO" = "FALSE"
+  ))
+nmesRAW <- nmesRAW %>%
+  mutate(mscd = mscd_recode) %>%
+  select(-mscd_recode)
+
+nmesRAW %>% print(width = Inf)
+```
+
+(3) Recode the categorical variables in the NMES data into factors according to the following codebook.  Once all of your recoding is complete and you've dropped any intermediate variables, rename the dataset `nmesPROC`.
+
+• lc5: indicator of lung cancer, laryngeal cancer or COPD (1 = Yes, 0 = No)
+• chd5: indicator of CHD, stroke, and other cancers (oral, esophageal, stomach, kidney and bladder) (1
+= Yes, 0 = No)
+• eversmk: indicator of whether the individual has ever been a smoker (1 = Yes, 0 = No)
+• current: indicator of whether the individual is currently a smoker (1 = Yes, 0 = No, NA if eversmk =
+0)
+• former: indicator of whether the individual is formerly a smoker (1 = Yes, 0 = No)
+• beltuse: self-reported seat-belt use (1 = Rarely, 2 = Sometimes, 3 = Always/Almost always)
+• educate: education level (1 = College graduate, 2 = Some college, 3 = HS graduate, 4 = Other)
+• marital: marital status (1 = Married, 2 = Widowed, 3 = Divorced, 4 = Separated, 5 = Never married)
+• poor: indicator of whether the individual is below the poverty line (1 = Yes, 0 = No)
+• female: individual’s sex (1 = Female, 0 = Male)
+
+```{r}
+nmesPROC <- nmesRAW %>%
+ mutate(lc5_recoded = fct_recode(factor(lc5),
+                                         "YES" = "1",
+                                         "NO" = "0"
+                                         )) %>%  
+  mutate(lc5 = lc5_recoded) %>%
+  select(-lc5_recoded) %>%
+  mutate(chd5_recoded = fct_recode(factor(chd5),
+                                         "YES" = "1",
+                                         "NO" = "0"
+                                         )) %>%  
+  mutate(chd5 = chd5_recoded) %>%
+  select(-chd5_recoded) %>%
+  mutate(eversmk_recoded = fct_recode(factor(eversmk),
+                                         "YES" = "1",
+                                         "NO" = "0"
+                                         )) %>%  
+  mutate(eversmk = eversmk_recoded) %>%
+  select(-eversmk_recoded) %>%
+  mutate(current_recoded = fct_recode(factor(current),
+                                         "YES" = "1",
+                                         "NO" = "0"
+                                         )) %>%  
+  mutate(current = current_recoded) %>%
+  select(-current_recoded) %>%
+  mutate(former_recoded = fct_recode(factor(former),
+                                         "YES" = "1",
+                                         "NO" = "0"
+                                         )) %>%  
+  mutate(former = former_recoded) %>%
+  select(-former_recoded) %>%
+  mutate(beltuse_recoded = fct_recode(factor(beltuse),
+                                         "Rarely" = "1",
+                                         "Sometimes" = "2",
+                                         "Always/Almost always" = "3"
+                                         )) %>%  
+  mutate(beltuse = beltuse_recoded) %>%
+  select(-beltuse_recoded) %>%
+  mutate(educate_recoded = fct_recode(factor(educate),
+                                         "College graduate" = "1",
+                                         "Some college" = "2",
+                                         "HS graduate" = "3",
+                                         "Other" = "4"
+                                         )) %>%  
+  mutate(educate = educate_recoded) %>%
+  select(-educate_recoded) %>%
+  mutate(marital_recoded = fct_recode(factor(marital),
+                                         "Married" = "1",
+                                         "Widowed" = "2",
+                                         "Divorced" = "3",
+                                         "Separated" = "4",
+                                         "Never Married" = "5"
+                                         )) %>%  
+  mutate(marital = marital_recoded) %>%
+  select(-marital_recoded) %>%
+  mutate(poor_recoded = fct_recode(factor(poor),
+                                         "Yes" = "1",
+                                         "No" = "0"
+                                         )) %>%  
+  mutate(poor = poor_recoded) %>%
+  select(-poor_recoded) %>%
+  mutate(female_recoded = fct_recode(factor(female),
+                                         "Female" = "1",
+                                         "Male" = "0"
+                                         )) %>%  
+  mutate(female = female_recoded) %>%
+  select(-female_recoded)
+
+nmesPROC
+
+```
+
+(4) Give the code needed to create the following new variables and add them to your dataset:
+
+• Create an eversmk_text variable which is the eversmk variable but with Ever smoker and Never smoker instead of Yes and No.
+• Create a marital_collapsed variable to have the levels Married, Never married, and Previously married.
+
+```{r}
+nmesPROC <- nmesPROC %>%
+  mutate(eversmk_text = fct_recode(eversmk,
+                                   "Ever smoker" = "YES",
+                                   "Never smoker" = "NO")) %>%
+  mutate(marital_collapsed = fct_recode(marital,
+                                        "Previously married" = "Widowed",
+                                        "Previously married" = "Divorced",
+                                        "Previously married" = "Separated"))
+
+nmesPROC
+  
+```
+

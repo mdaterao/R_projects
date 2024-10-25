@@ -1,0 +1,109 @@
+---
+title: "Data Visualization practice part 2"
+author: "Monal Daterao"
+date: "2024-10-15"
+output: pdf_document
+---
+
+Data visualization practice part 2. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(r02pro)
+library(tidyverse)
+```
+
+
+## Section 5.8.5: Q3
+
+```{r}
+ggplot(data = remove_missing(sahp, vars = "oa_qual")) + 
+  geom_bar(mapping = aes(x = gar_car,
+                         fill = oa_qual > 5),
+           position = "fill")
+```
+
+## Section 5.8.5: Q4
+```{r}
+freq <- table(sahp$gar_car)
+prop <- freq/nrow(sahp)
+gar_car_stat <- data.frame(gar_car = names(freq),
+                           freq = as.vector(freq),
+                           prop = as.vector(prop))
+
+
+gar_car_stat
+           
+```
+```{r}
+ggplot(gar_car_stat, 
+       aes(x = "", 
+           y = prop,
+           fill = gar_car)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = round(100*prop, 2)),
+            position = position_stack(vjust = 0.5)) +
+  coord_polar("y") +
+  theme_void()
+```
+
+
+## Section 5.9.5: Q2
+```{r}
+ggplot(data = sahp) +
+  geom_histogram(mapping = aes(x = liv_area,
+                               fill = kit_qual),
+                 bins = 5)
+```
++ The kitchen quality for larger living areas is generally better compared to smaller living areas. The lower bins in the histogram have higher counts of "average" kitchens and lower counts of "excellent" kitchens whereas the higher bins have higher counts of "excellent" kitchens and lower counts of "average" kitchens. I also created another bar graph below that represents the proportions of each kit_qual value in each bin, and it is clear that the proportion of "good" and "excellent" quality kitchens increases with larger living areas. Additionally, the graph above also shows that there are lower counts for the number of larger living area residences compared to smaller living area residences. 
+
+```{r}
+ggplot(data = sahp) +
+  geom_histogram(mapping = aes(x = liv_area,
+                               fill = kit_qual),
+                 position = "fill",
+                 bins = 5)
+```
+
+
+
+## Section 5.11.6: Q4
+```{r}
+ggplot(sahp) +
+geom_boxplot(mapping = aes(fct_reorder(kit_qual,
+                                       lot_area,
+                                       mean),
+                             y = liv_area))
+```
+
+## Section 5.11.6: Q5
+```{r}
+ggplot(remove_missing(sahp, vars = "oa_qual")) +
+geom_boxplot(mapping = aes(x = kit_qual,
+                             y = liv_area,
+                           color = oa_qual > 5))
+```
+
+## Section 5.12.3: Q1
+```{r}
+my_boxplot <- ggplot(data = sahp) +
+  geom_boxplot(mapping = aes(x = "",
+                             y = liv_area))
+my_boxplot
+```
+
+## Section 5.12.3: Q2
+```{r}
+my_boxplot + facet_wrap("bedroom")
+```
++ From this plot, I can conclude that the median living area is generally larger when there are more bedrooms.
+
+## Section 5.12.3: Q3
+```{r}
+my_boxplot + facet_grid(rows = vars(kit_qual),
+                        cols = vars(central_air))
+```
++ There is no subplot for the combination of no central air and excellent kitchen quality. This means that there are no residences that have excellent kitchen quality and no central air. This is likely because residences with excellent kitchen quality are likely of higher income and are able to afford central air systems. 
